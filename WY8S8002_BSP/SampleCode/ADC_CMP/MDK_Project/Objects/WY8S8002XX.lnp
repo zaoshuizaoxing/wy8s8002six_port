@@ -1,0 +1,20 @@
+".\Objects\STARTUP_WY8S8002xx.obj",
+".\Objects\gpio.obj",
+".\Objects\adc.obj",
+".\Objects\pwm.obj",
+".\Objects\ir.obj",
+".\Objects\timer.obj",
+".\Objects\uart.obj",
+".\Objects\common.obj",
+".\Objects\delay.obj",
+".\Objects\main.obj",
+".\Objects\board_config.obj",
+".\Objects\adc_sample.obj",
+".\Objects\soft_uart_rx.obj",
+".\Objects\app_logic.obj",
+".\Objects\tm1622.obj" 
+TO ".\Objects\WY8S8002XX" 
+
+PRINT(".\Listings\WY8S8002XX.map") REMOVEUNUSED 
+CLASSES (XDATA (X:0x0-X:0x1FF), HDATA (X:0x0-X:0x1FF), CODE (C:0x0-C:0x1FFF), CONST (C:0x0-C:0x1FFF), 
+ECODE (C:0x0-C:0x1FFF), HCONST (C:0x0-C:0x1FFF)) 

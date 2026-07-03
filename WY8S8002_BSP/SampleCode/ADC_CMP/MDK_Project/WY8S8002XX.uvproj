@@ -442,9 +442,24 @@
               <FilePath>..\Source_Code\main.c</FilePath>
             </File>
             <File>
-              <FileName>adc_cmp.c</FileName>
+              <FileName>board_config.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Source_Code\adc_cmp.c</FilePath>
+              <FilePath>..\Source_Code\board_config.c</FilePath>
+            </File>
+            <File>
+              <FileName>adc_sample.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Source_Code\adc_sample.c</FilePath>
+            </File>
+            <File>
+              <FileName>soft_uart_rx.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Source_Code\soft_uart_rx.c</FilePath>
+            </File>
+            <File>
+              <FileName>app_logic.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Source_Code\app_logic.c</FilePath>
             </File>
             <File>
               <FileName>tm1622.c</FileName>

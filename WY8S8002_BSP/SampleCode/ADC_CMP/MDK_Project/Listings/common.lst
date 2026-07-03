@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.0.0   COMMON                                                            07/03/2026 14:30:28 PAGE 1   
+C51 COMPILER V9.60.0.0   COMMON                                                            07/03/2026 15:43:47 PAGE 1   
 
 
 C51 COMPILER V9.60.0.0, COMPILATION OF MODULE COMMON
@@ -62,7 +62,7 @@ line level    source
   51          void System_ConfigCLK(sysclk_t u8clkSel, uint8_t u8divSel, uint8_t u8waits)
   52          {
   53   1      
-C51 COMPILER V9.60.0.0   COMMON                                                            07/03/2026 14:30:28 PAGE 2   
+C51 COMPILER V9.60.0.0   COMMON                                                            07/03/2026 15:43:47 PAGE 2   
 
   54   1          if(u8waits > GET_SYS_CLK_WAITS)
   55   1          {
@@ -126,7 +126,7 @@ line level    source
  113   1          WAITING_WDT_WDTCLR();
  114   1          if(0x00 == IS_SYSD_FLAG)
  115   1          {
-C51 COMPILER V9.60.0.0   COMMON                                                            07/03/2026 14:30:28 PAGE 3   
+C51 COMPILER V9.60.0.0   COMMON                                                            07/03/2026 15:43:47 PAGE 3   
 
  116   2              return 0;
  117   2          }
@@ -190,7 +190,7 @@ line level    source
  175   3            HRCFTUNE16 = (HRCFTUNE16 & 0xFC00) | fine_tune;
  176   3          }
  177   2        }
-C51 COMPILER V9.60.0.0   COMMON                                                            07/03/2026 14:30:28 PAGE 4   
+C51 COMPILER V9.60.0.0   COMMON                                                            07/03/2026 15:43:47 PAGE 4   
 
  178   1        return 1;
  179   1      }

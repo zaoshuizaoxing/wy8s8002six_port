@@ -1,0 +1,99 @@
+C51 COMPILER V9.60.0.0   ADC_SAMPLE                                                        07/03/2026 15:43:47 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE ADC_SAMPLE
+OBJECT MODULE PLACED IN .\Objects\adc_sample.obj
+COMPILER INVOKED BY: D:\Keil_5\C51\BIN\C51.EXE ..\Source_Code\adc_sample.c OMF2 OPTIMIZE(8,SPEED) BROWSE INCDIR(..\..\..
+                    -\Library\inc) DEBUG PRINT(.\Listings\adc_sample.lst) TABS(2) OBJECT(.\Objects\adc_sample.obj)
+
+line level    source
+
+   1          #include "adc_sample.h"
+   2          
+   3          #include "adc.h"
+   4          #include "board_config.h"
+   5          #include "delay.h"
+   6          
+   7          static uint8_t  s_sample_index;
+   8          static uint16_t xdata s_adc_raw[ADC_SAMPLE_CHANNEL_COUNT];
+   9          static uint16_t xdata s_adc_mv[ADC_SAMPLE_CHANNEL_COUNT];
+  10          static const uint8_t code s_adc_channels[ADC_SAMPLE_CHANNEL_COUNT] = {
+  11              ADC_AIN7, /* P02 */
+  12              ADC_AIN6, /* P03 */
+  13              ADC_AIN5, /* P04 */
+  14              ADC_AIN4  /* P05 */
+  15          };
+  16          
+  17          void AdcSample_Init(void)
+  18          {
+  19   1          uint8_t i;
+  20   1      
+  21   1          s_sample_index = 0;
+  22   1          for(i = 0; i < ADC_SAMPLE_CHANNEL_COUNT; i++)
+  23   1          {
+  24   2              s_adc_raw[i] = 0;
+  25   2              s_adc_mv[i] = 0;
+  26   2              ADC_ConfigChannel(s_adc_channels[i], ADC_DIV_4);
+  27   2          }
+  28   1      
+  29   1          ADC_SMP_SEL(ADC_CLKP_8);
+  30   1          ADC_ConfigSWCVT();
+  31   1          ENABLE_ADC;
+  32   1          Timer0_Delay_ms(1);
+  33   1      }
+  34          
+  35          void AdcSample_Task(void)
+  36          {
+  37   1          uint16_t raw;
+  38   1      
+  39   1          ADC_ConfigChannel(s_adc_channels[s_sample_index], ADC_DIV_4);
+  40   1          ADC_StartSWCVT();
+  41   1          raw = ADC_GetResultQueryMode();
+  42   1      
+  43   1          s_adc_raw[s_sample_index] = raw;
+  44   1          s_adc_mv[s_sample_index] = (uint16_t)(((uint32_t)raw * BOARD_ADC_REF_MV) / 4095UL);
+  45   1      
+  46   1          s_sample_index++;
+  47   1          if(s_sample_index >= ADC_SAMPLE_CHANNEL_COUNT)
+  48   1          {
+  49   2              s_sample_index = 0;
+  50   2          }
+  51   1      }
+  52          
+  53          uint16_t AdcSample_GetRaw(uint8_t index)
+  54          {
+C51 COMPILER V9.60.0.0   ADC_SAMPLE                                                        07/03/2026 15:43:47 PAGE 2   
+
+  55   1          if(index >= ADC_SAMPLE_CHANNEL_COUNT)
+  56   1          {
+  57   2              return 0;
+  58   2          }
+  59   1          return s_adc_raw[index];
+  60   1      }
+  61          
+  62          uint16_t AdcSample_GetMv(uint8_t index)
+  63          {
+  64   1          if(index >= ADC_SAMPLE_CHANNEL_COUNT)
+  65   1          {
+  66   2              return 0;
+  67   2          }
+  68   1          return s_adc_mv[index];
+  69   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    228    ----
+   CONSTANT SIZE    =      4    ----
+   XDATA SIZE       =     16    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      1       1
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

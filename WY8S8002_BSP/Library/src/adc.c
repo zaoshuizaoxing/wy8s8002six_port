@@ -8,7 +8,6 @@
  */
 
 #include "adc.h"
-
 /**
  * Configure ADC Hardware Conversion Mode
  * @param[in] u8channel ADC conversion channel
@@ -71,7 +70,6 @@ void ADC_ConfigChannel(uint8_t u8channel, uint8_t u8div)
     }
     ADC_ADCCON1_CKS_SEL(u8div);
 }
-
 /**
  * Configure ADC Comparator Mode
  * @param[in] u8FBStatus ADC comparator result control for PWM brake enable
@@ -86,7 +84,6 @@ void ADC_ConfigCMP(uint8_t u8FBStatus, uint8_t u8cmpSel)
     ADC_ADCCON0_FBEN_SET(u8FBStatus);
     ADC_ADCCON0_PPS_SET(u8cmpSel);
 }
-
 /**
  * Configure ADC Hardware Conversion Mode
  * @param[in] u8HWsource Hardware source for triggering ADC conversion
@@ -108,7 +105,6 @@ void ADC_ConfigHWCVT(uint8_t u8HWsource, uint8_t u8trigger, uint16_t u16delay)
     ADC_ADCCON1_HWTSEL_SEL(u8trigger);   /* Set hardware trigger type */
     ADC_ADDLY_DATA(u16delay);
 }
-
 /**
  * Configure ADC Software Conversion Mode
  */
@@ -116,7 +112,6 @@ void ADC_ConfigSWCVT(void)
 {
     ADC_ADCCON0_SC_SET(ADC_SW_CVT_MODE);
 }
-
 /**
  * Start Software Conversion
  * @note Wait for ADC module to be idle before starting conversion
@@ -127,7 +122,6 @@ void ADC_StartSWCVT(void)
         ;
     ENABLE_ADC_SOFT_CVT;
 }
-
 /**
  * Get ADC Conversion Result in Query Mode
  * @return ADC conversion result (12-bit width)

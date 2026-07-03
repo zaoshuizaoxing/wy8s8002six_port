@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.0.0   ADC                                                               07/03/2026 14:30:27 PAGE 1   
+C51 COMPILER V9.60.0.0   ADC                                                               07/03/2026 15:43:47 PAGE 1   
 
 
 C51 COMPILER V9.60.0.0, COMPILATION OF MODULE ADC
@@ -18,142 +18,136 @@ line level    source
    8           */
    9          
   10          #include "adc.h"
-  11          
-  12          /**
-  13           * Configure ADC Hardware Conversion Mode
-  14           * @param[in] u8channel ADC conversion channel
-  15           * -# ADC_AIN0
-  16           * -# ADC_AIN1
-  17           * -# ADC_AIN2
-  18           * -# ADC_AIN3
-  19           * -# ADC_AIN4
-  20           * -# ADC_AIN5
-  21           * -# ADC_AIN6
-  22           * -# ADC_AIN7
-  23           * -# ADC_INTERNAL_CH
-  24           * @param[in] u8div Clock division
-  25           * -# ADC_DIV_2 : Fsys/2
-  26           * -# ADC_DIV_4 : Fsys/4
-  27           * -# ADC_DIV_8 : Fsys/8
-  28           * -# ADC_DIV_16: Fsys/16
-  29           */
-  30          void ADC_ConfigChannel(uint8_t u8channel, uint8_t u8div)
-  31          {
-  32   1          switch(u8channel)
-  33   1          {
-  34   2              case ADC_AIN0:
-  35   2                  PORT_SET_MUX(ADC_AIN0_PORT, ANALOG_MUX_MODE);
-  36   2                  ADC_ADCCON2_CHS_SEL(ADC_AIN0);
-  37   2                  break;
-  38   2              case ADC_AIN1:
-  39   2                  PORT_SET_MUX(ADC_AIN1_PORT, ANALOG_MUX_MODE);
-  40   2                  ADC_ADCCON2_CHS_SEL(ADC_AIN1);
-  41   2                  break;
-  42   2              case ADC_AIN2:
-  43   2                  PORT_SET_MUX(ADC_AIN2_PORT, ANALOG_MUX_MODE);
-  44   2                  ADC_ADCCON2_CHS_SEL(ADC_AIN2);
-  45   2                  break;
-  46   2              case ADC_AIN3:
-  47   2                  PORT_SET_MUX(ADC_AIN3_PORT, ANALOG_MUX_MODE);
-  48   2                  ADC_ADCCON2_CHS_SEL(ADC_AIN3);
-  49   2                  break;
-  50   2              case ADC_AIN4:
-  51   2                  PORT_SET_MUX(ADC_AIN4_PORT, ANALOG_MUX_MODE);
-  52   2                  ADC_ADCCON2_CHS_SEL(ADC_AIN4);
-  53   2                  break;
-  54   2              case ADC_AIN5:
-C51 COMPILER V9.60.0.0   ADC                                                               07/03/2026 14:30:27 PAGE 2   
+  11          /**
+  12           * Configure ADC Hardware Conversion Mode
+  13           * @param[in] u8channel ADC conversion channel
+  14           * -# ADC_AIN0
+  15           * -# ADC_AIN1
+  16           * -# ADC_AIN2
+  17           * -# ADC_AIN3
+  18           * -# ADC_AIN4
+  19           * -# ADC_AIN5
+  20           * -# ADC_AIN6
+  21           * -# ADC_AIN7
+  22           * -# ADC_INTERNAL_CH
+  23           * @param[in] u8div Clock division
+  24           * -# ADC_DIV_2 : Fsys/2
+  25           * -# ADC_DIV_4 : Fsys/4
+  26           * -# ADC_DIV_8 : Fsys/8
+  27           * -# ADC_DIV_16: Fsys/16
+  28           */
+  29          void ADC_ConfigChannel(uint8_t u8channel, uint8_t u8div)
+  30          {
+  31   1          switch(u8channel)
+  32   1          {
+  33   2              case ADC_AIN0:
+  34   2                  PORT_SET_MUX(ADC_AIN0_PORT, ANALOG_MUX_MODE);
+  35   2                  ADC_ADCCON2_CHS_SEL(ADC_AIN0);
+  36   2                  break;
+  37   2              case ADC_AIN1:
+  38   2                  PORT_SET_MUX(ADC_AIN1_PORT, ANALOG_MUX_MODE);
+  39   2                  ADC_ADCCON2_CHS_SEL(ADC_AIN1);
+  40   2                  break;
+  41   2              case ADC_AIN2:
+  42   2                  PORT_SET_MUX(ADC_AIN2_PORT, ANALOG_MUX_MODE);
+  43   2                  ADC_ADCCON2_CHS_SEL(ADC_AIN2);
+  44   2                  break;
+  45   2              case ADC_AIN3:
+  46   2                  PORT_SET_MUX(ADC_AIN3_PORT, ANALOG_MUX_MODE);
+  47   2                  ADC_ADCCON2_CHS_SEL(ADC_AIN3);
+  48   2                  break;
+  49   2              case ADC_AIN4:
+  50   2                  PORT_SET_MUX(ADC_AIN4_PORT, ANALOG_MUX_MODE);
+  51   2                  ADC_ADCCON2_CHS_SEL(ADC_AIN4);
+  52   2                  break;
+  53   2              case ADC_AIN5:
+  54   2                  PORT_SET_MUX(ADC_AIN5_PORT, ANALOG_MUX_MODE);
+C51 COMPILER V9.60.0.0   ADC                                                               07/03/2026 15:43:47 PAGE 2   
 
-  55   2                  PORT_SET_MUX(ADC_AIN5_PORT, ANALOG_MUX_MODE);
-  56   2                  ADC_ADCCON2_CHS_SEL(ADC_AIN5);
-  57   2                  break;
-  58   2              case ADC_AIN6:
-  59   2                  PORT_SET_MUX(ADC_AIN6_PORT, ANALOG_MUX_MODE);
-  60   2                  ADC_ADCCON2_CHS_SEL(ADC_AIN6);
-  61   2                  break;
-  62   2              case ADC_AIN7:
-  63   2                  PORT_SET_MUX(ADC_AIN7_PORT, ANALOG_MUX_MODE);
-  64   2                  ADC_ADCCON2_CHS_SEL(ADC_AIN7);
-  65   2                  break;
-  66   2              case ADC_INTERNAL_CH:
-  67   2                  ADC_ADCCON2_CHS_SEL(ADC_INTERNAL_CH);
-  68   2                  break;
-  69   2              default:
-  70   2                  break;
-  71   2          }
-  72   1          ADC_ADCCON1_CKS_SEL(u8div);
-  73   1      }
-  74          
-  75          /**
-  76           * Configure ADC Comparator Mode
-  77           * @param[in] u8FBStatus ADC comparator result control for PWM brake enable
-  78           * -# ADC_DISABLE_PWMFB: Disable
-  79           * -# ADC_ENABLE_PWMFB:  Enable
-  80           * @param[in] u8cmpSel ADC comparator output polarity selection
-  81           * -# ADC_CR_GREATER_CMP_1: If ADRH, ADCRL >= ADCMP, then ADCMPO = 1, otherwise ADCMPO = 0
-  82           * -# ADC_CR_LESS_CMP_1:    If ADRH, ADCRL < ADCMP, then ADCMPO = 1, otherwise ADCMPO = 0
-  83           */
-  84          void ADC_ConfigCMP(uint8_t u8FBStatus, uint8_t u8cmpSel)
-  85          {
-  86   1          ADC_ADCCON0_FBEN_SET(u8FBStatus);
-  87   1          ADC_ADCCON0_PPS_SET(u8cmpSel);
-  88   1      }
-  89          
-  90          /**
-  91           * Configure ADC Hardware Conversion Mode
-  92           * @param[in] u8HWsource Hardware source for triggering ADC conversion
-  93           * -# ADC_PWM0
-  94           * -# ADC_PWM2
-  95           * -# ADC_PWM4
-  96           * -# ADC_STADC
-  97           * @param[in] u8trigger Hardware trigger type
-  98           * -# ADC_PWMSTA_RISING :    Rising edge of PWM0/2/4 or STADC pin
-  99           * -# ADC_PWMSTA_FALLING:    Falling edge of PWM0/2/4 or STADC pin
- 100           * -# ADC_PWM_MIDPOINT  : Midpoint of PWM0/2/4 cycle
- 101           * -# ADC_PWM_ENDPOINT  : Endpoint of PWM0/2/4 cycle
- 102           * @param[in] u8delay Hardware delay: total 10 bits, ADCCON2[1:0] for high 2 bits, ADDLYL[7:0] for low 8 b
+  55   2                  ADC_ADCCON2_CHS_SEL(ADC_AIN5);
+  56   2                  break;
+  57   2              case ADC_AIN6:
+  58   2                  PORT_SET_MUX(ADC_AIN6_PORT, ANALOG_MUX_MODE);
+  59   2                  ADC_ADCCON2_CHS_SEL(ADC_AIN6);
+  60   2                  break;
+  61   2              case ADC_AIN7:
+  62   2                  PORT_SET_MUX(ADC_AIN7_PORT, ANALOG_MUX_MODE);
+  63   2                  ADC_ADCCON2_CHS_SEL(ADC_AIN7);
+  64   2                  break;
+  65   2              case ADC_INTERNAL_CH:
+  66   2                  ADC_ADCCON2_CHS_SEL(ADC_INTERNAL_CH);
+  67   2                  break;
+  68   2              default:
+  69   2                  break;
+  70   2          }
+  71   1          ADC_ADCCON1_CKS_SEL(u8div);
+  72   1      }
+  73          /**
+  74           * Configure ADC Comparator Mode
+  75           * @param[in] u8FBStatus ADC comparator result control for PWM brake enable
+  76           * -# ADC_DISABLE_PWMFB: Disable
+  77           * -# ADC_ENABLE_PWMFB:  Enable
+  78           * @param[in] u8cmpSel ADC comparator output polarity selection
+  79           * -# ADC_CR_GREATER_CMP_1: If ADRH, ADCRL >= ADCMP, then ADCMPO = 1, otherwise ADCMPO = 0
+  80           * -# ADC_CR_LESS_CMP_1:    If ADRH, ADCRL < ADCMP, then ADCMPO = 1, otherwise ADCMPO = 0
+  81           */
+  82          void ADC_ConfigCMP(uint8_t u8FBStatus, uint8_t u8cmpSel)
+  83          {
+  84   1          ADC_ADCCON0_FBEN_SET(u8FBStatus);
+  85   1          ADC_ADCCON0_PPS_SET(u8cmpSel);
+  86   1      }
+  87          /**
+  88           * Configure ADC Hardware Conversion Mode
+  89           * @param[in] u8HWsource Hardware source for triggering ADC conversion
+  90           * -# ADC_PWM0
+  91           * -# ADC_PWM2
+  92           * -# ADC_PWM4
+  93           * -# ADC_STADC
+  94           * @param[in] u8trigger Hardware trigger type
+  95           * -# ADC_PWMSTA_RISING :    Rising edge of PWM0/2/4 or STADC pin
+  96           * -# ADC_PWMSTA_FALLING:    Falling edge of PWM0/2/4 or STADC pin
+  97           * -# ADC_PWM_MIDPOINT  : Midpoint of PWM0/2/4 cycle
+  98           * -# ADC_PWM_ENDPOINT  : Endpoint of PWM0/2/4 cycle
+  99           * @param[in] u8delay Hardware delay: total 10 bits, ADCCON2[1:0] for high 2 bits, ADDLYL[7:0] for low 8 b
              -its
- 103           */
- 104          void ADC_ConfigHWCVT(uint8_t u8HWsource, uint8_t u8trigger, uint16_t u16delay)
- 105          {
- 106   1          ADC_ADCCON0_SC_SET(ADC_HW_CVT_MODE); /* Select hardware conversion mode */
- 107   1          ADC_ADCCON1_HWSSEL_SEL(u8HWsource);  /* Select hardware source for triggering ADC conversion */
- 108   1          ADC_ADCCON1_HWTSEL_SEL(u8trigger);   /* Set hardware trigger type */
- 109   1          ADC_ADDLY_DATA(u16delay);
- 110   1      }
- 111          
- 112          /**
- 113           * Configure ADC Software Conversion Mode
- 114           */
- 115          void ADC_ConfigSWCVT(void)
-C51 COMPILER V9.60.0.0   ADC                                                               07/03/2026 14:30:27 PAGE 3   
+ 100           */
+ 101          void ADC_ConfigHWCVT(uint8_t u8HWsource, uint8_t u8trigger, uint16_t u16delay)
+ 102          {
+ 103   1          ADC_ADCCON0_SC_SET(ADC_HW_CVT_MODE); /* Select hardware conversion mode */
+ 104   1          ADC_ADCCON1_HWSSEL_SEL(u8HWsource);  /* Select hardware source for triggering ADC conversion */
+ 105   1          ADC_ADCCON1_HWTSEL_SEL(u8trigger);   /* Set hardware trigger type */
+ 106   1          ADC_ADDLY_DATA(u16delay);
+ 107   1      }
+ 108          /**
+ 109           * Configure ADC Software Conversion Mode
+ 110           */
+ 111          void ADC_ConfigSWCVT(void)
+ 112          {
+ 113   1          ADC_ADCCON0_SC_SET(ADC_SW_CVT_MODE);
+ 114   1      }
+ 115          /**
+C51 COMPILER V9.60.0.0   ADC                                                               07/03/2026 15:43:47 PAGE 3   
 
- 116          {
- 117   1          ADC_ADCCON0_SC_SET(ADC_SW_CVT_MODE);
- 118   1      }
- 119          
- 120          /**
- 121           * Start Software Conversion
- 122           * @note Wait for ADC module to be idle before starting conversion
- 123           */
- 124          void ADC_StartSWCVT(void)
- 125          {
- 126   1          while(1 == GET_ADC_ADCCON0_SWS)
- 127   1              ;
- 128   1          ENABLE_ADC_SOFT_CVT;
- 129   1      }
- 130          
- 131          /**
- 132           * Get ADC Conversion Result in Query Mode
- 133           * @return ADC conversion result (12-bit width)
- 134           */
- 135          uint16_t ADC_GetResultQueryMode(void)
- 136          {
- 137   1          while(0 == IS_ADC_IF_FLAG)
- 138   1              ;
- 139   1          CLR_ADC_IF_FLAG;
- 140   1          return GET_ADC_CVT_12BIT;
- 141   1      }
+ 116           * Start Software Conversion
+ 117           * @note Wait for ADC module to be idle before starting conversion
+ 118           */
+ 119          void ADC_StartSWCVT(void)
+ 120          {
+ 121   1          while(1 == GET_ADC_ADCCON0_SWS)
+ 122   1              ;
+ 123   1          ENABLE_ADC_SOFT_CVT;
+ 124   1      }
+ 125          /**
+ 126           * Get ADC Conversion Result in Query Mode
+ 127           * @return ADC conversion result (12-bit width)
+ 128           */
+ 129          uint16_t ADC_GetResultQueryMode(void)
+ 130          {
+ 131   1          while(0 == IS_ADC_IF_FLAG)
+ 132   1              ;
+ 133   1          CLR_ADC_IF_FLAG;
+ 134   1          return GET_ADC_CVT_12BIT;
+ 135   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
