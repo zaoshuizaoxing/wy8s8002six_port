@@ -1,0 +1,103 @@
+C51 COMPILER V9.60.0.0   MAIN                                                              07/03/2026 14:30:28 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: D:\Keil_5\C51\BIN\C51.EXE ..\Source_Code\main.c OMF2 OPTIMIZE(8,SPEED) BROWSE INCDIR(..\..\..\Libra
+                    -ry\inc) DEBUG PRINT(.\Listings\main.lst) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          /**
+   2           * @file      main.c
+   3           * @brief     Main function of the project
+   4           * @author    Software Team
+   5           * @date      2023-07
+   6           * @version   V1.0.0
+   7           * @copyright WAYON
+   8           */
+   9          
+  10          #include "adc.h"
+  11          #include "adc_cmp.h"
+  12          #include "common.h"
+  13          #include "delay.h"
+  14          
+  15          /**
+  16           * ADC test mode enumeration
+  17           */
+  18          typedef enum {
+  19              TEST_ADC_CMP = 0, /*!< Comparison mode */
+  20              TEST_ADC_FB,      /*!< PWM brake generation from comparison mode */
+  21          } ADC_Test_Mode_e;
+  22          
+  23          /**
+  24           * This routine implements tests for ADC comparison mode and PWM brake generation from comparison mode.
+  25           *
+  26           * ADC comparison mode test:
+  27           * --------------------------------------------------------------------------------------------
+  28           * Configure P16 as AIN0   \n
+  29           * P11 as output IO, in the interrupt, assign the comparison output result (ADCMPO) to P11 to detect the c
+             -omparison
+  30           * result.   \n
+  31           * Compare the voltage at pin P16 with the voltage set in the ADC comparison registers {ADCMPH[7:0]
+  32           * ADCMPL[3:0]}   \n
+  33           * In this routine, the comparison voltage is set to 2V when the MCU is powered at 3.3V. If the voltage at
+             - pin P16 is
+  34           * the value configured in the ADC comparison registers, then P11 outputs a high level; if greater, P11 ou
+             -tputs a low
+  35           * level.
+  36           *
+  37           * ADC comparison mode generating PWM brake test:
+  38           * --------------------------------------------------------------------------------------------
+  39           * In this routine, P15 outputs a PWM signal (period: 1ms, duty cycle 50%). When the voltage at pin P16 is
+             - < the value
+  40           * configured in the ADC comparison registers, PWM braking occurs.
+  41           */
+  42          int main(void)
+  43          {
+  44   1          ADC_Test_Mode_e e_ADCTestMode = TEST_ADC_FB;
+  45   1      
+  46   1          System_ConfigCLK(SYSCLK_HRC, CLK_DIV_2, WAITS_INST_VDD_LT3600MV_CLK_GE15_LT20M);
+  47   1          switch(e_ADCTestMode)
+  48   1          {
+  49   2              case TEST_ADC_CMP: /* Comparison mode */
+  50   2                  ADC_ConfigCMPInit();
+C51 COMPILER V9.60.0.0   MAIN                                                              07/03/2026 14:30:28 PAGE 2   
+
+  51   2                  while(1)
+  52   2                  {
+  53   3                      ADC_StartSWCVT(); /* Start software conversion, the result is obtained within the interrup
+             -t */
+  54   3                  }
+  55   2                  break;
+  56   2              case TEST_ADC_FB: /* PWM brake generation from comparison mode */
+  57   2                  ADC_ConfigCMPFBInit();
+  58   2                  while(1)
+  59   2                  {
+  60   3                      ADC_StartSWCVT(); /* Start software conversion, the result is obtained within the interrup
+             -t */
+  61   3                  }
+  62   2                  break;
+  63   2              default:
+  64   2                  break;
+  65   2          }
+  66   1          return 0;
+  67   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     40    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----       1
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
