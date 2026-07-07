@@ -9,9 +9,7 @@
 
 #include "common.h"
 #include "wdt.h"
-
 uint32_t g_u32SystemClock = HRC_VALUE; /*!< Global variable for system clock */
-
 /**
  * Configure system clock
  * @param[in] u8clkSel Clock source selection
@@ -88,7 +86,7 @@ void System_ConfigCLK(sysclk_t u8clkSel, uint8_t u8divSel, uint8_t u8waits)
 * Enter standby
 * @return 0:Fail to enter 1:Success to enter
 * @note Enter standby mode when PCON.SYSD is 1.
-*/
+*/ 
 uint8_t System_EnterStandby(void)
 {
     if(0x00 == IS_SYSD_FLAG)
@@ -177,4 +175,3 @@ uint8_t HRC_FineTuning(uint8_t dir, uint16_t step)
 	}
 	return 1;
 }
-

@@ -16,7 +16,6 @@ int main(void)
 {
     Board_Init();
     App_Init();
-
     while(1)
     {
         AdcSample_Task();

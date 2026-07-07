@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.0.0   APP_LOGIC                                                         07/03/2026 15:43:48 PAGE 1   
+C51 COMPILER V9.60.0.0   APP_LOGIC                                                         07/06/2026 18:11:26 PAGE 1   
 
 
 C51 COMPILER V9.60.0.0, COMPILATION OF MODULE APP_LOGIC
@@ -62,7 +62,7 @@ line level    source
   52   1          {
   53   2              g_app.soft_uart_rx_byte = SoftUartRx_ReadByte();
   54   2              g_app.soft_uart_rx_ready = 1;
-C51 COMPILER V9.60.0.0   APP_LOGIC                                                         07/03/2026 15:43:48 PAGE 2   
+C51 COMPILER V9.60.0.0   APP_LOGIC                                                         07/06/2026 18:11:26 PAGE 2   
 
   55   2          }
   56   1      

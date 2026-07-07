@@ -1,16 +1,13 @@
 #include "board_config.h"
-
 #include "adc_sample.h"
 #include "gpio.h"
 #include "soft_uart_rx.h"
 #include "tm1622.h"
 #include "uart.h"
-
 static void Board_ConfigUart0(void)
 {
-    PORT_SET_MUX(PIO00CFG, UART0_RXD_MUX_MODE);
-    PORT_SET_MUX(PIO01CFG, UART0_TXD_MUX_MODE);
-
+    PORT_SET_MUX(PIO00CFG, UART0_TXD_MUX_MODE);  /* P00 = UART0_TX */
+    PORT_SET_MUX(PIO01CFG, UART0_RXD_MUX_MODE);  /* P01 = UART0_RX */
     UART0_SCON_MODE_SET(UART_8BIT_ASY_MODE);
     DISABLE_UART0_SM2;
     UART_ConfigBaudRate(UART_0, UART_TIMER3, BOARD_UART0_BAUD, DISABLE_DOUBLE_BRT);
@@ -34,7 +31,6 @@ void Board_Init(void)
     AdcSample_Init();
     SoftUartRx_Init(BOARD_SOFT_UART_BAUD);
 }
-
 void Board_BacklightSet(uint8_t on)
 {
     P13 = (on != 0) ? 1 : 0;
