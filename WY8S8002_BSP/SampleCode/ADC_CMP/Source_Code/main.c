@@ -10,7 +10,9 @@
 #include "app_logic.h"
 #include "board_config.h"
 #include "common.h"
+#include "key_input.h"
 #include "soft_uart_rx.h"
+#include "telemetry_protocol.h"
 
 int main(void)
 {
@@ -20,6 +22,8 @@ int main(void)
     {
         AdcSample_Task();
         SoftUartRx_Task();
+        TelemetryProtocol_Task();
+        KeyInput_Task();
         App_Task();
     }
 }

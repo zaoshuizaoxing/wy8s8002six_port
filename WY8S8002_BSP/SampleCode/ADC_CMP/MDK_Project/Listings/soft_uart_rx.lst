@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.0.0   SOFT_UART_RX                                                      07/06/2026 18:11:25 PAGE 1   
+C51 COMPILER V9.60.0.0   SOFT_UART_RX                                                      07/20/2026 11:01:13 PAGE 1   
 
 
 C51 COMPILER V9.60.0.0, COMPILATION OF MODULE SOFT_UART_RX
@@ -11,210 +11,284 @@ line level    source
    1          #include "soft_uart_rx.h"
    2          
    3          #include "gpio.h"
-   4          #include "timer.h"
-   5          
-   6          #define SOFT_UART_RX_BUF_SIZE    (16U)
-   7          #define SOFT_UART_TIMER_DIV      (TIMER2_T2DIV_16DIV)
-   8          #define SOFT_UART_TIMER_DIV_VAL  (16UL)
-   9          #define SOFT_UART_STATE_IDLE     (0U)
-  10          #define SOFT_UART_STATE_START    (1U)
-  11          #define SOFT_UART_STATE_DATA     (2U)
-  12          #define SOFT_UART_STATE_STOP     (3U)
-  13          
-  14          static volatile uint8_t s_rx_state;
-  15          static volatile uint8_t s_rx_bit_index;
-  16          static volatile uint8_t s_rx_shift;
-  17          static volatile uint8_t s_rx_head;
-  18          static volatile uint8_t s_rx_tail;
-  19          static volatile uint8_t xdata s_rx_buf[SOFT_UART_RX_BUF_SIZE];
-  20          static uint16_t s_bit_ticks;
-  21          static uint16_t s_half_bit_ticks;
-  22          
-  23          static void SoftUartRx_LoadTimer(uint16_t ticks)
-  24          {
-  25   1          uint16_t reload_value;
-  26   1      
-  27   1          reload_value = 65536U - ticks;
-  28   1          TIMER2_DATA_REG((reload_value >> 8) & 0xFF, reload_value & 0xFF);
-  29   1          CLR_TIME2_TF2_FLAG;
-  30   1          ENABLE_TIMER2;
-  31   1      }
-  32          
-  33          static void SoftUartRx_StopTimer(void)
-  34          {
-  35   1          DISABLE_TIMER2;
-  36   1          CLR_TIME2_TF2_FLAG;
-  37   1      }
-  38          
-  39          static void SoftUartRx_PushByte(uint8_t data_value)
-  40          {
-  41   1          uint8_t next_head;
-  42   1      
-  43   1          next_head = s_rx_head + 1;
-  44   1          if(next_head >= SOFT_UART_RX_BUF_SIZE)
-  45   1          {
-  46   2              next_head = 0;
-  47   2          }
-  48   1      
-  49   1          if(next_head != s_rx_tail)
-  50   1          {
-  51   2              s_rx_buf[s_rx_head] = data_value;
-  52   2              s_rx_head = next_head;
-  53   2          }
-  54   1      }
-C51 COMPILER V9.60.0.0   SOFT_UART_RX                                                      07/06/2026 18:11:25 PAGE 2   
+   4          #include "key_input.h"
+   5          #include "timer.h"
+   6          
+   7          #define SOFT_UART_RX_BUF_SIZE    (16U)
+   8          #define SOFT_UART_TIMER_DIV      (TIMER2_T2DIV_1DIV)
+   9          #define SOFT_UART_TIMER_DIV_VAL  (1UL)
+  10          #define SOFT_UART_STATE_IDLE     (0U)
+  11          #define SOFT_UART_STATE_START    (1U)
+  12          #define SOFT_UART_STATE_DATA     (2U)
+  13          #define SOFT_UART_STATE_STOP     (3U)
+  14          #define SOFT_UART_INVALID_PORT   (0xFFU)
+  15          
+  16          static volatile uint8_t s_rx_state;
+  17          static volatile uint8_t s_active_port;
+  18          static volatile uint8_t s_rx_bit_index;
+  19          static volatile uint8_t s_rx_shift;
+  20          static volatile uint8_t s_rx_head[SOFT_UART_PORT_COUNT];
+  21          static volatile uint8_t s_rx_tail[SOFT_UART_PORT_COUNT];
+  22          static volatile uint8_t xdata s_rx_buf[SOFT_UART_PORT_COUNT][SOFT_UART_RX_BUF_SIZE];
+  23          static uint16_t s_bit_ticks;
+  24          static uint16_t s_half_bit_ticks;
+  25          static SoftUartRx_Health_t xdata s_health;
+  26          
+  27          static uint8_t SoftUartRx_ReadPin(uint8_t port)
+  28          {
+  29   1          return (port == SOFT_UART_PORT_C12) ? P01 : P06;
+  30   1      }
+  31          
+  32          static void SoftUartRx_StartTimer(void)
+  33          {
+  34   1          uint16_t reload_value;
+  35   1      
+  36   1          reload_value = 65536U - s_bit_ticks;
+  37   1          TIMER2_RCMP_DATA_REG((reload_value >> 8) & 0xFF, reload_value & 0xFF);
+  38   1          reload_value = 65536U - s_half_bit_ticks;
+  39   1          TIMER2_DATA_REG((reload_value >> 8) & 0xFF, reload_value & 0xFF);
+  40   1          CLR_TIME2_TF2_FLAG;
+  41   1          ENABLE_TIMER2;
+  42   1      }
+  43          
+  44          static void SoftUartRx_StopTimer(void)
+  45          {
+  46   1          DISABLE_TIMER2;
+  47   1          CLR_TIME2_TF2_FLAG;
+  48   1      }
+  49          
+  50          static void SoftUartRx_PushByte(uint8_t port, uint8_t data_value)
+  51          {
+  52   1          uint8_t next_head;
+  53   1      
+  54   1          next_head = s_rx_head[port] + 1;
+C51 COMPILER V9.60.0.0   SOFT_UART_RX                                                      07/20/2026 11:01:13 PAGE 2   
 
-  55          
-  56          void SoftUartRx_Init(uint32_t baud)
-  57          {
-  58   1          uint32_t timer_clk;
+  55   1          if(next_head >= SOFT_UART_RX_BUF_SIZE)
+  56   1          {
+  57   2              next_head = 0;
+  58   2          }
   59   1      
-  60   1          if(baud == 0)
+  60   1          if(next_head != s_rx_tail[port])
   61   1          {
-  62   2              baud = 9600UL;
-  63   2          }
-  64   1      
-  65   1          timer_clk = g_u32SystemClock / SOFT_UART_TIMER_DIV_VAL;
-  66   1          s_bit_ticks = (uint16_t)((timer_clk + (baud / 2UL)) / baud);
-  67   1          if(s_bit_ticks < 4)
-  68   1          {
-  69   2              s_bit_ticks = 4;
-  70   2          }
-  71   1          s_half_bit_ticks = s_bit_ticks / 2;
-  72   1          if(s_half_bit_ticks == 0)
-  73   1          {
-  74   2              s_half_bit_ticks = 1;
-  75   2          }
-  76   1      
-  77   1          s_rx_state = SOFT_UART_STATE_IDLE;
-  78   1          s_rx_bit_index = 0;
-  79   1          s_rx_shift = 0;
-  80   1          s_rx_head = 0;
-  81   1          s_rx_tail = 0;
-  82   1      
-  83   1          PORT_SET_MUX(PIO06CFG, GPIO_MUX_MODE);
-  84   1          GPIO0_ConfigInput(GPIO_PIN_6, GPIO_PULLUP);
-  85   1          GPIO0_ConfigINT(GPIO_PIN_6, GPIO_INT_FALLING);
-  86   1      
-  87   1          DISABLE_TIMER2;
-  88   1          TIMER2_T2MOD_T2DIV_SET(SOFT_UART_TIMER_DIV);
-  89   1          TIMER2_SET_RELOAD_MODE;
-  90   1          DISABLE_TIMER2_RELOAD;
-  91   1          DISABLE_TIMER2_CMPCR;
-  92   1          CLR_TIME2_TF2_FLAG;
-  93   1          ENABLE_TIME2_INT;
-  94   1      
-  95   1          CLR_GPIO0_FLAG(GPIO_PIN_6);
-  96   1          ENABLE_GPIO_INT;
-  97   1          ENABLE_ALL_INT;
-  98   1      }
-  99          
- 100          void SoftUartRx_Task(void)
- 101          {
- 102   1      }
- 103          
- 104          uint8_t SoftUartRx_Available(void)
- 105          {
- 106   1          return (s_rx_head != s_rx_tail) ? 1 : 0;
- 107   1      }
- 108          
- 109          uint8_t SoftUartRx_ReadByte(void)
- 110          {
- 111   1          uint8_t data_value;
+  62   2              s_rx_buf[port][s_rx_head[port]] = data_value;
+  63   2              s_rx_head[port] = next_head;
+  64   2          }
+  65   1          else
+  66   1          {
+  67   2              s_health.overflow_count[port]++;
+  68   2          }
+  69   1      }
+  70          
+  71          void SoftUartRx_Init(uint32_t baud)
+  72          {
+  73   1          uint32_t timer_clk;
+  74   1      
+  75   1          if(baud == 0)
+  76   1          {
+  77   2              baud = 9600UL;
+  78   2          }
+  79   1      
+  80   1          timer_clk = g_u32SystemClock / SOFT_UART_TIMER_DIV_VAL;
+  81   1          s_bit_ticks = (uint16_t)((timer_clk + (baud / 2UL)) / baud);
+  82   1          if(s_bit_ticks < 4)
+  83   1          {
+  84   2              s_bit_ticks = 4;
+  85   2          }
+  86   1          s_half_bit_ticks = s_bit_ticks / 2;
+  87   1          if(s_half_bit_ticks == 0)
+  88   1          {
+  89   2              s_half_bit_ticks = 1;
+  90   2          }
+  91   1      
+  92   1          s_rx_state = SOFT_UART_STATE_IDLE;
+  93   1          s_rx_bit_index = 0;
+  94   1          s_rx_shift = 0;
+  95   1          s_rx_head[SOFT_UART_PORT_C12] = 0;
+  96   1          s_rx_head[SOFT_UART_PORT_C34] = 0;
+  97   1          s_rx_tail[SOFT_UART_PORT_C12] = 0;
+  98   1          s_rx_tail[SOFT_UART_PORT_C34] = 0;
+  99   1          s_active_port = SOFT_UART_INVALID_PORT;
+ 100   1          s_health.overflow_count[SOFT_UART_PORT_C12] = 0;
+ 101   1          s_health.overflow_count[SOFT_UART_PORT_C34] = 0;
+ 102   1          s_health.stop_error_count[SOFT_UART_PORT_C12] = 0;
+ 103   1          s_health.stop_error_count[SOFT_UART_PORT_C34] = 0;
+ 104   1          s_health.busy_drop_count = 0;
+ 105   1      
+ 106   1          PORT_SET_MUX(PIO01CFG, GPIO_MUX_MODE);
+ 107   1          PORT_SET_MUX(PIO06CFG, GPIO_MUX_MODE);
+ 108   1          GPIO0_ConfigInput(GPIO_PIN_1, GPIO_PULLUP);
+ 109   1          GPIO0_ConfigInput(GPIO_PIN_6, GPIO_PULLUP);
+ 110   1          GPIO0_ConfigINT(GPIO_PIN_1, GPIO_INT_FALLING);
+ 111   1          GPIO0_ConfigINT(GPIO_PIN_6, GPIO_INT_FALLING);
  112   1      
- 113   1          if(s_rx_head == s_rx_tail)
- 114   1          {
- 115   2              return 0;
- 116   2          }
-C51 COMPILER V9.60.0.0   SOFT_UART_RX                                                      07/06/2026 18:11:25 PAGE 3   
+ 113   1          DISABLE_TIMER2;
+ 114   1          TIMER2_T2MOD_T2DIV_SET(SOFT_UART_TIMER_DIV);
+ 115   1          TIMER2_SET_RELOAD_MODE;
+ 116   1          ENABLE_TIMER2_RELOAD;
+C51 COMPILER V9.60.0.0   SOFT_UART_RX                                                      07/20/2026 11:01:13 PAGE 3   
 
- 117   1      
- 118   1          data_value = s_rx_buf[s_rx_tail];
- 119   1          s_rx_tail++;
- 120   1          if(s_rx_tail >= SOFT_UART_RX_BUF_SIZE)
- 121   1          {
- 122   2              s_rx_tail = 0;
- 123   2          }
- 124   1          return data_value;
+ 117   1          DISABLE_TIMER2_CMPCR;
+ 118   1          CLR_TIME2_TF2_FLAG;
+ 119   1          ENABLE_TIME2_INT;
+ 120   1      
+ 121   1          CLR_GPIO0_FLAG(GPIO_PIN_1);
+ 122   1          CLR_GPIO0_FLAG(GPIO_PIN_6);
+ 123   1          ENABLE_GPIO_INT;
+ 124   1          ENABLE_ALL_INT;
  125   1      }
  126          
- 127          static void _GPIO_IRQHandler(void) interrupt GPIO_VECTOR
+ 127          void SoftUartRx_Task(void)
  128          {
- 129   1          if(IS_GPIO0_FLAG(GPIO_PIN_6))
- 130   1          {
- 131   2              CLR_GPIO0_FLAG(GPIO_PIN_6);
- 132   2              if(s_rx_state == SOFT_UART_STATE_IDLE)
- 133   2              {
- 134   3                  s_rx_state = SOFT_UART_STATE_START;
- 135   3                  s_rx_bit_index = 0;
- 136   3                  s_rx_shift = 0;
- 137   3                  SoftUartRx_LoadTimer(s_half_bit_ticks);
- 138   3              }
- 139   2          }
- 140   1      }
- 141          
- 142          static void _TIMER2_IRQHandler(void) interrupt TIMER2_VECTOR
- 143          {
- 144   1          if(IS_TIME2_TF2_FLAG)
+ 129   1      }
+ 130          
+ 131          uint8_t SoftUartRx_Available(uint8_t port)
+ 132          {
+ 133   1          if(port >= SOFT_UART_PORT_COUNT)
+ 134   1          {
+ 135   2              return 0;
+ 136   2          }
+ 137   1          return (s_rx_head[port] != s_rx_tail[port]) ? 1 : 0;
+ 138   1      }
+ 139          
+ 140          uint8_t SoftUartRx_ReadByte(uint8_t port)
+ 141          {
+ 142   1          uint8_t data_value;
+ 143   1      
+ 144   1          if((port >= SOFT_UART_PORT_COUNT) || (s_rx_head[port] == s_rx_tail[port]))
  145   1          {
- 146   2              CLR_TIME2_TF2_FLAG;
- 147   2      
- 148   2              switch(s_rx_state)
- 149   2              {
- 150   3                  case SOFT_UART_STATE_START:
- 151   3                      if(P06 == 0)
- 152   3                      {
- 153   4                          s_rx_state = SOFT_UART_STATE_DATA;
- 154   4                          s_rx_bit_index = 0;
- 155   4                          s_rx_shift = 0;
- 156   4                          SoftUartRx_LoadTimer(s_bit_ticks);
- 157   4                      }
- 158   3                      else
- 159   3                      {
- 160   4                          s_rx_state = SOFT_UART_STATE_IDLE;
- 161   4                          SoftUartRx_StopTimer();
- 162   4                      }
- 163   3                      break;
- 164   3      
- 165   3                  case SOFT_UART_STATE_DATA:
- 166   3                      if(P06 != 0)
- 167   3                      {
- 168   4                          s_rx_shift |= (1U << s_rx_bit_index);
- 169   4                      }
- 170   3                      s_rx_bit_index++;
- 171   3                      if(s_rx_bit_index >= 8)
- 172   3                      {
- 173   4                          s_rx_state = SOFT_UART_STATE_STOP;
- 174   4                      }
- 175   3                      SoftUartRx_LoadTimer(s_bit_ticks);
- 176   3                      break;
- 177   3      
- 178   3                  case SOFT_UART_STATE_STOP:
-C51 COMPILER V9.60.0.0   SOFT_UART_RX                                                      07/06/2026 18:11:25 PAGE 4   
+ 146   2              return 0;
+ 147   2          }
+ 148   1      
+ 149   1          data_value = s_rx_buf[port][s_rx_tail[port]];
+ 150   1          s_rx_tail[port]++;
+ 151   1          if(s_rx_tail[port] >= SOFT_UART_RX_BUF_SIZE)
+ 152   1          {
+ 153   2              s_rx_tail[port] = 0;
+ 154   2          }
+ 155   1          return data_value;
+ 156   1      }
+ 157          
+ 158          void SoftUartRx_GetHealth(SoftUartRx_Health_t *health)
+ 159          {
+ 160   1          if(health != 0)
+ 161   1          {
+ 162   2              *health = s_health;
+ 163   2          }
+ 164   1      }
+ 165          
+ 166          static void _GPIO_IRQHandler(void) interrupt GPIO_VECTOR
+ 167          {
+ 168   1          if(IS_GPIO0_FLAG(GPIO_PIN_1))
+ 169   1          {
+ 170   2              CLR_GPIO0_FLAG(GPIO_PIN_1);
+ 171   2              if(s_rx_state == SOFT_UART_STATE_IDLE)
+ 172   2              {
+ 173   3                  s_active_port = SOFT_UART_PORT_C12;
+ 174   3                  s_rx_state = SOFT_UART_STATE_START;
+ 175   3                  s_rx_bit_index = 0;
+ 176   3                  s_rx_shift = 0;
+ 177   3                  SoftUartRx_StartTimer();
+ 178   3              }
+C51 COMPILER V9.60.0.0   SOFT_UART_RX                                                      07/20/2026 11:01:13 PAGE 4   
 
- 179   3                      if(P06 != 0)
- 180   3                      {
- 181   4                          SoftUartRx_PushByte(s_rx_shift);
- 182   4                      }
- 183   3                      s_rx_state = SOFT_UART_STATE_IDLE;
- 184   3                      SoftUartRx_StopTimer();
- 185   3                      break;
- 186   3      
- 187   3                  default:
- 188   3                      s_rx_state = SOFT_UART_STATE_IDLE;
- 189   3                      SoftUartRx_StopTimer();
- 190   3                      break;
- 191   3              }
- 192   2          }
- 193   1      }
+ 179   2              else
+ 180   2              {
+ 181   3                  s_health.busy_drop_count++;
+ 182   3              }
+ 183   2          }
+ 184   1      
+ 185   1          if(IS_GPIO0_FLAG(GPIO_PIN_6))
+ 186   1          {
+ 187   2              CLR_GPIO0_FLAG(GPIO_PIN_6);
+ 188   2              if(s_rx_state == SOFT_UART_STATE_IDLE)
+ 189   2              {
+ 190   3                  s_active_port = SOFT_UART_PORT_C34;
+ 191   3                  s_rx_state = SOFT_UART_STATE_START;
+ 192   3                  s_rx_bit_index = 0;
+ 193   3                  s_rx_shift = 0;
+ 194   3                  SoftUartRx_StartTimer();
+ 195   3              }
+ 196   2              else
+ 197   2              {
+ 198   3                  s_health.busy_drop_count++;
+ 199   3              }
+ 200   2          }
+ 201   1      
+ 202   1          if(IS_GPIO1_FLAG(GPIO_PIN_7))
+ 203   1          {
+ 204   2              CLR_GPIO1_FLAG(GPIO_PIN_7);
+ 205   2              KeyInput_OnFallingEdge();
+ 206   2          }
+ 207   1      }
+ 208          
+ 209          static void _TIMER2_IRQHandler(void) interrupt TIMER2_VECTOR
+ 210          {
+ 211   1          if(IS_TIME2_TF2_FLAG)
+ 212   1          {
+ 213   2              CLR_TIME2_TF2_FLAG;
+ 214   2      
+ 215   2              switch(s_rx_state)
+ 216   2              {
+ 217   3                  case SOFT_UART_STATE_START:
+ 218   3                      if(SoftUartRx_ReadPin(s_active_port) == 0)
+ 219   3                      {
+ 220   4                          s_rx_state = SOFT_UART_STATE_DATA;
+ 221   4                          s_rx_bit_index = 0;
+ 222   4                          s_rx_shift = 0;
+ 223   4                      }
+ 224   3                      else
+ 225   3                      {
+ 226   4                          s_rx_state = SOFT_UART_STATE_IDLE;
+ 227   4                          s_active_port = SOFT_UART_INVALID_PORT;
+ 228   4                          SoftUartRx_StopTimer();
+ 229   4                      }
+ 230   3                      break;
+ 231   3      
+ 232   3                  case SOFT_UART_STATE_DATA:
+ 233   3                      if(SoftUartRx_ReadPin(s_active_port) != 0)
+ 234   3                      {
+ 235   4                          s_rx_shift |= (1U << s_rx_bit_index);
+ 236   4                      }
+ 237   3                      s_rx_bit_index++;
+ 238   3                      if(s_rx_bit_index >= 8)
+ 239   3                      {
+ 240   4                          s_rx_state = SOFT_UART_STATE_STOP;
+C51 COMPILER V9.60.0.0   SOFT_UART_RX                                                      07/20/2026 11:01:13 PAGE 5   
+
+ 241   4                      }
+ 242   3                      break;
+ 243   3      
+ 244   3                  case SOFT_UART_STATE_STOP:
+ 245   3                      if(SoftUartRx_ReadPin(s_active_port) != 0)
+ 246   3                      {
+ 247   4                          SoftUartRx_PushByte(s_active_port, s_rx_shift);
+ 248   4                      }
+ 249   3                      else
+ 250   3                      {
+ 251   4                          s_health.stop_error_count[s_active_port]++;
+ 252   4                      }
+ 253   3                      s_rx_state = SOFT_UART_STATE_IDLE;
+ 254   3                      s_active_port = SOFT_UART_INVALID_PORT;
+ 255   3                      SoftUartRx_StopTimer();
+ 256   3                      break;
+ 257   3      
+ 258   3                  default:
+ 259   3                      s_rx_state = SOFT_UART_STATE_IDLE;
+ 260   3                      s_active_port = SOFT_UART_INVALID_PORT;
+ 261   3                      SoftUartRx_StopTimer();
+ 262   3                      break;
+ 263   3              }
+ 264   2          }
+ 265   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    547    ----
+   CODE SIZE        =    897    ----
    CONSTANT SIZE    =   ----    ----
-   XDATA SIZE       =     16    ----
+   XDATA SIZE       =     42    ----
    PDATA SIZE       =   ----    ----
-   DATA SIZE        =      9       8
+   DATA SIZE        =     12      11
    IDATA SIZE       =   ----    ----
    BIT SIZE         =   ----    ----
    EDATA SIZE       =   ----    ----

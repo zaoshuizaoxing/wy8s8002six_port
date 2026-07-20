@@ -4,13 +4,14 @@
 ".\Objects\pwm.obj",
 ".\Objects\ir.obj",
 ".\Objects\timer.obj",
-".\Objects\uart.obj",
 ".\Objects\common.obj",
 ".\Objects\delay.obj",
 ".\Objects\main.obj",
 ".\Objects\board_config.obj",
 ".\Objects\adc_sample.obj",
 ".\Objects\soft_uart_rx.obj",
+".\Objects\telemetry_protocol.obj",
+".\Objects\key_input.obj",
 ".\Objects\app_logic.obj",
 ".\Objects\tm1622.obj" 
 TO ".\Objects\WY8S8002XX" 

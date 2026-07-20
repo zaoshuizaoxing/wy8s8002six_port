@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.0.0   ADC_SAMPLE                                                        07/06/2026 18:11:25 PAGE 1   
+C51 COMPILER V9.60.0.0   ADC_SAMPLE                                                        07/20/2026 11:01:13 PAGE 1   
 
 
 C51 COMPILER V9.60.0.0, COMPILATION OF MODULE ADC_SAMPLE
@@ -62,7 +62,7 @@ line level    source
   52          uint16_t AdcSample_GetMv(uint8_t index)
   53          {
   54   1          if(index >= ADC_SAMPLE_CHANNEL_COUNT)
-C51 COMPILER V9.60.0.0   ADC_SAMPLE                                                        07/06/2026 18:11:25 PAGE 2   
+C51 COMPILER V9.60.0.0   ADC_SAMPLE                                                        07/20/2026 11:01:13 PAGE 2   
 
   55   1          {
   56   2              return 0;

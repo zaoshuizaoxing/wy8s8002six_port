@@ -411,11 +411,6 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\Library\src\timer.c</FilePath>
             </File>
-            <File>
-              <FileName>uart.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\Library\src\uart.c</FilePath>
-            </File>
           </Files>
         </Group>
         <Group>
@@ -455,6 +450,16 @@
               <FileName>soft_uart_rx.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Source_Code\soft_uart_rx.c</FilePath>
+            </File>
+            <File>
+              <FileName>telemetry_protocol.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Source_Code\telemetry_protocol.c</FilePath>
+            </File>
+            <File>
+              <FileName>key_input.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Source_Code\key_input.c</FilePath>
             </File>
             <File>
               <FileName>app_logic.c</FileName>
